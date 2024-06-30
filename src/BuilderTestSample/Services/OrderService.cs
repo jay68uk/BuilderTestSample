@@ -17,13 +17,18 @@ namespace BuilderTestSample.Services
         private void ValidateOrder(Order order)
         {
             // throw InvalidOrderException unless otherwise noted.
-
-            // TODO: order ID must be zero (it's a new order)
+            
             if (order.Id != 0) throw new InvalidOrderException("Order ID must be 0.");
+            
+            if (order.TotalAmount <= 0)
+            {
+                throw new InvalidOrderException("Order Total Amount must be greater than 0.");
+            }
 
-            // TODO: order amount must be greater than zero
-            // TODO: order must have a customer (customer is not null)
-
+            if (order.Customer is null)
+            {
+                throw new InvalidOrderException("Order must have a customer associated with it.");
+            }
             ValidateCustomer(order.Customer);
         }
 
@@ -31,12 +36,31 @@ namespace BuilderTestSample.Services
         {
             // throw InvalidCustomerException unless otherwise noted
             // create a CustomerBuilder to implement the tests for these scenarios
+            
+            if (customer.Id<=0)
+            {
+                throw new InvalidCustomerException("Customer Id must be greater than 0!");    
+            }
 
-            // TODO: customer must have an ID > 0
-            // TODO: customer must have an address (it is not null)
-            // TODO: customer must have a first and last name
-            // TODO: customer must have credit rating > 200 (otherwise throw InsufficientCreditException)
-            // TODO: customer must have total purchases >= 0
+            if (customer.HomeAddress is null)
+            {
+                throw new InvalidCustomerException("Customer Address cannot be null!");
+            }
+
+            if (string.IsNullOrEmpty(customer.FirstName) || string.IsNullOrEmpty(customer.LastName))
+            {
+                throw new InvalidCustomerException("Customer must have first and last name!");
+            }
+
+            if (customer.CreditRating<200)
+            {
+                throw new InsufficientCreditException("Customer has insufficient credit rating!");
+            }
+            
+            if (customer.TotalPurchases<=0)
+            {
+                throw new InvalidCustomerException("Customer must have total purchases greater than 0!");
+            }
 
             ValidateAddress(customer.HomeAddress);
         }
@@ -46,23 +70,50 @@ namespace BuilderTestSample.Services
             // throw InvalidAddressException unless otherwise noted
             // create an AddressBuilder to implement the tests for these scenarios
 
-            // TODO: street1 is required (not null or empty)
-            // TODO: city is required (not null or empty)
-            // TODO: state is required (not null or empty)
-            // TODO: postalcode is required (not null or empty)
-            // TODO: country is required (not null or empty)
+            if (string.IsNullOrEmpty(homeAddress.Street1))
+            {
+                throw new InvalidAddressException("Customer must have Address, Street1!");
+            }
+            
+            if (string.IsNullOrEmpty(homeAddress.City))
+            {
+                throw new InvalidAddressException("Customer must have Address, City!");
+            }
+            
+            if (string.IsNullOrEmpty(homeAddress.State))
+            {
+                throw new InvalidAddressException("Customer must have Address, State!");
+            }
+            
+            if (string.IsNullOrEmpty(homeAddress.PostalCode))
+            {
+                throw new InvalidAddressException("Customer must have Address, Postcode!");
+            }
+            
+            if (string.IsNullOrEmpty(homeAddress.Country))
+            {
+                throw new InvalidAddressException("Customer must have Address, Country!");
+            }
         }
 
         private void ExpediteOrder(Order order)
         {
-            // TODO: if customer's total purchases > 5000 and credit rating > 500 set IsExpedited to true
+            if (order.Customer.TotalPurchases>5000 
+                && order.Customer.CreditRating>500)
+            {
+                order.IsExpedited = true;
+            }
+            else
+            {
+                order.IsExpedited = false;
+            }
         }
 
         private void AddOrderToCustomerHistory(Order order)
         {
-            // TODO: add the order to the customer
+            order.Customer.OrderHistory.Add(order);
 
-            // TODO: update the customer's total purchases property
+            order.Customer.TotalPurchases += 1;
         }
     }
 }
